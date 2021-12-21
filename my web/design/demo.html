@@ -1,0 +1,313 @@
+<!doctype html>
+<!doctype html>
+<html>
+	<meta charset="UTF-8">
+	<title>snake3D</title>
+	<script src="three.min.js"></script>
+	<script src="optimer_bold.typeface.js"></script>
+	<script>
+		var renderer;
+		var camera;
+		var scene;
+		var light;
+		var cube = [];
+		var plane;
+		var fo;
+		var start_scene;
+
+		function Init() {
+			width = document.getElementById('canvas3d').clientWidth;
+			/*网页上的每个元素，都有clientHeight和clientWidth属性。
+			这两个属性指元素的内容部分再加上padding的所占据的视觉面积，不包括border和滚动条占用的空间。*/
+			height = document.getElementById('canvas3d').clientHeight;
+			// document.write(width);
+			// document.write(height);
+			renderer = new THREE.WebGLRenderer({
+				antialias: true
+			});
+			/**  * 创建渲染器对象 antialias - 是否执行抗锯齿。默认为false. */
+			renderer.setSize(width, height);
+			/*将输出canvas的大小调整为(width, height)并考虑设备像素比，且将视口从(0, 0)开始调整到适合大小 */
+			document.getElementById('canvas3d').innerHTML = '';
+			/*设置或返回表格行的开始和结束标签之间的 HTML*/
+			document.getElementById('canvas3d').appendChild(renderer.domElement);
+			/*一个canvas，渲染器在其上绘制输出。渲染器的构造函数会自动创建(如果没有传入canvas参数);
+			你需要做的仅仅是像下面这样将它加页面里去:*/
+			renderer.setClearColor(Math.random() * 0xffffff, 1);
+			/*设置颜色及其透明度*/
+			/*这一摄像机使用perspective projection（透视投影）来进行投影。*/
+			camera = new THREE.PerspectiveCamera(45, width / height, 1, 5000);
+			camera.position.x = 0; /*表示相机局部位置*/
+			camera.position.y = -280;
+			camera.position.z = 200;
+			camera.up.x = 0;
+			camera.up.y = 0;
+			camera.up.z = 1;
+			camera.lookAt({
+				x: 0,
+				y: 0,
+				z: 0
+			}); /*决定相机的朝向*/
+			/**  * 创建场景对象Scene*/
+			scene = new THREE.Scene();
+
+			light = new THREE.DirectionalLight('white', 1.0, 0); /*平行光*/
+			light.position.set(-600, -600, -600);
+			scene.add(light);
+			plane = CreatePlane(400);
+			plane.position.set(0, 0, 0);
+			scene.add(plane);
+			//start_scene
+			start_scene = new THREE.Scene();
+			word = CreateText('Growth of life', 80, 30);
+			word2 = CreateText('press any key to start', 30, 20);
+			start_scene.add(word);
+			start_scene.add(word2);
+			start_scene.add(light);
+			renderer.render(start_scene, camera); /*用相机(camera)渲染一个场景(start_scene)*/
+			for (i = 0; i < nx; i++) {
+				board[i] = new Array()
+				for (k = 0; k < ny; k++) {
+					board[i][k] = 0;
+				}
+			} //0 = none, 1 = snake body, 2 = food
+			fo = CreateCube(10, 10, 50);
+			scene.add(fo);
+			document.addEventListener('keydown', onKeyDown, false);
+			for (i = 0; i < len; i++) {
+				snake[i] = new Object();
+				snake[i].x = head_pos_x + i * dir_x[3 - head_for];
+				snake[i].y = head_pos_y + i * dir_y[3 - head_for];
+				cube[i] = CreateCube(10, 10, 10);
+				cube[i].position.x = snake[i].x * 10 - 200;
+				cube[i].position.y = -snake[i].y * 10 + 190;
+				scene.add(cube[i]);
+				board[snake[i].x][snake[i].y] = 1;
+			}
+
+		}
+		/*创建文本函数，用于创建开始界面的艺术字*/
+		function CreateText(_text, _z, _size) /*文本几何体的库*/ {
+			var material = new THREE.MeshFaceMaterial([
+				new THREE.MeshPhongMaterial({
+					color: 'red',
+					shading: THREE.FlatShading
+				}), // front
+				new THREE.MeshPhongMaterial({
+					color: 'red',
+					shading: THREE.SmoothShading
+				}) // side
+			]);
+			var text = _text,
+				height = 20,
+				size = _size,
+				curveSegments = 4,
+				font = "optimer", // helvetiker, optimer, gentilis, droid sans, droid serif
+				weight = "bold", // normal bold
+				style = "normal"; // normal italic
+			textGeo = new THREE.TextGeometry(text, {
+				size: size,
+				height: height,
+				curveSegments: curveSegments,
+				font: font,
+				weight: weight,
+				style: style,
+			});
+
+			textGeo.computeBoundingBox();
+			/*Geometry 的外边界矩形*/
+			textGeo.computeVertexNormals();
+			/*areaWeighted - 如果该值设置为 true，则每个面的法向量对顶点法向量的影响按照面的面积大小来计算*/
+			var centerOffset = -0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
+			textMesh1 = new THREE.Mesh(textGeo, material);
+			textMesh1.position.x = centerOffset;
+			textMesh1.position.y = 0;
+			textMesh1.position.z = _z;
+			textMesh1.rotation.x = Math.PI / 2.5;
+			textMesh1.rotation.y = Math.PI * 2;
+			return textMesh1;
+		}
+		/*创建立方体函数，蛇身，实物均由立方体代表*/
+		function CreateCube(_s1, _s2, _s3) {
+			var geometry = new THREE.BoxGeometry(_s1, _s2, _s3);
+			/*立方几何体*/
+			for (var i = 0; i < geometry.faces.length; i += 2) {
+				/*每个顶点之间如何组成模型面的面队列*/
+				var hex = Math.random() * 0xffffff;
+				geometry.faces[i].color.setHex(hex);
+				geometry.faces[i + 1].color.setHex(hex);
+			}
+			var material = new THREE.MeshBasicMaterial({
+				vertexColors: THREE.FaceColors,
+				overdraw: 0.5,
+				wireframe: false
+			});
+			/*一个以简单着色（平面或线框）方式来绘制几何体的材质。这种材质不受光照的影响。*/
+			return new THREE.Mesh(geometry, material);
+		}
+
+		function CreatePlane(_size) {
+			var geometry = new THREE.PlaneGeometry(_size, _size, 40, 40);
+			/*平面沿着X轴的宽度 平面沿着Y轴的高度平面的宽度分段数 平面的高度分段数*/
+			var material = new THREE.MeshBasicMaterial({
+				color: (Math.random() * 0xffffff),
+				overdraw: 0.5,
+				wireframe: false
+			});
+			return new THREE.Mesh(geometry, material);
+		}
+		// function animate()
+		// {
+		// 	requestAnimationFrame(animate);
+		// 	render();
+		// }
+		/*渲染函数，对场景进行渲染*/
+		function render() {
+			if (status == -1)
+				return;
+			for (var i = 0; i < len; ++i) {
+				cube[i].position.x = snake[i].x * 10 - 200;
+				cube[i].position.y = -snake[i].y * 10 + 190;
+			}
+			camera.position.y = -snake[0].y * 3 - 300;
+			camera.position.x = snake[0].x * 3 - 100;
+			renderer.render(scene, camera);
+		}
+		var nx = 40,
+			ny = 40,
+			size = 20,
+			start_point_x = 100,
+			start_point_y = 50;
+		var len = 3;
+		var head_pos_x = 10,
+			head_pos_y = 10,
+			head_for = 2;
+		var dir_x = new Array(0, -1, 1, 0);
+		var dir_y = new Array(1, 0, 0, -1);
+		var status = -1; //the status of the game, -1 represents not start
+		var pause_flag = false;
+		var board = new Array();
+		var the_last_head = head_for;
+		var snake = new Array();
+		/*重新加载游戏函数*/
+		function reload_game() {
+			console.log(1);
+			cube = [];
+			len = 3;
+			head_pos_x = 10, head_pos_y = 10, head_for = 2;
+			status = -1;
+			pause_flag = false;
+			board = new Array();
+			the_last_head = head_for;
+			snake = new Array();
+			Init();
+		}
+		/*移动函数，蛇在移动过程中会有食物的出现，游戏的结束等事件*/
+		function move() {
+			var tx = snake[0].x + dir_x[head_for];
+			var ty = snake[0].y + dir_y[head_for];
+			//tx = (tx + nx) % nx;
+			//ty = (ty + ny) % ny;
+			if (tx >= 0 && tx < nx && ty >= 0 && ty < ny) {
+				if (board[tx][ty] != 1) {
+					the_last_head = head_for;
+					if (board[tx][ty] == 2) {
+						snake[len] = new Object();
+						snake[len].x = snake[len - 1].x;
+						snake[len].y = snake[len - 1].y;
+						cube[len] = CreateCube(10, 10, 10);
+						cube[len].position.x = snake[len].x * 10 - 200;
+						cube[len].position.y = -snake[len].y * 10 + 190;
+						scene.add(cube[len]);
+						board[tx][ty] = 1;
+						len++;
+						food();
+					}
+					for (i = len - 1; i > 0; i--) {
+						snake[i].x = snake[i - 1].x;
+						snake[i].y = snake[i - 1].y;
+					}
+					snake[0].x = tx;
+					snake[0].y = ty;
+				} else {
+					if (the_last_head + head_for != 3) {
+						alert("game over!\ryour score is " + len);
+						reload_game();
+					} else {
+						head_for = the_last_head;
+					}
+				}
+			} else {
+				alert("game over!\ryour score is " + len);
+				reload_game();
+			}
+			for (i = 0; i < nx; i++) {
+				for (k = 0; k < ny; k++) {
+					if (board[i][k] == 1)
+						board[i][k] = 0;
+				}
+			}
+			for (i = 0; i < len; i++) {
+				board[snake[i].x][snake[i].y] = 1;
+			}
+		}
+		/*随机出现食物函数*/
+		function food() {
+			var tx, ty;
+			do {
+				tx = Math.ceil(Math.random() * 1000) % nx;
+				ty = Math.ceil(Math.random() * 1000) % ny;
+			} while (board[tx][ty]);
+			board[tx][ty] = 2;
+			fo.position.x = tx * 10 - 200;
+			fo.position.y = -ty * 10 + 190;
+			fo.position.z = 20;
+		}
+		/*蛇在跑过程中的函数，在这里可以修改蛇的运动速度*/
+		function run() {
+			if (status == -1)
+				return;
+			if (!pause_flag)
+				move();
+			render();
+			setTimeout("run()", 1000); //you can change speed here
+		}
+		/*键盘按下时间函数，任意键开始游戏，上，下，左，右四键控制蛇的移动方向*/
+		function onKeyDown(event) {
+			if (status == -1) {
+				status = 0;
+				food();
+				run();
+			}
+			if (window.event) // IE
+			{
+				keynum = event.keyCode;
+			} else if (event.which) // Netscape/Firefox/Opera
+			{
+				keynum = event.which;
+			}
+			if (keynum == 38 && head_for != 0)
+				head_for = 3; /*上箭头*/
+			if (keynum == 40 && head_for != 3)
+				head_for = 0; /*下箭头*/
+			if (keynum == 37 && head_for != 2)
+				head_for = 1; /*右箭头*/
+			if (keynum == 39 && head_for != 1)
+				head_for = 2; /*左箭头*/
+			if (keynum == 80)
+				pause_flag = !pause_flag;
+			if (keynum != 80)
+				pause_flag = false;
+		}
+	</script>
+	<style>
+		#canvas3d {
+			margin: auto;
+			width: 960px;
+			height: 600px;
+		}
+	</style>
+	<body onload='Init()'>
+		<div id="canvas3d"></div>
+	</body>
+</html>
