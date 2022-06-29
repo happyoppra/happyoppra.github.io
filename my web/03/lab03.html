@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>tomoe留言板</title>
+	</head>
+	
+	<body bgcolor="#e0edd3">
+		<div class="div1"></div>
+		<form action="http://192.168.99.203/lab/receiver.asp"method="post">
+			<table width="400px"height="150px"bordercolor="red"border="1">
+				<td align="center">
+					用户名：<input type="text"name="user"id="username"maxlength="5"/><br /><br />
+					密码：<input type="password"name="paswd" id="password"/><br /><br />
+				</td>
+			</table>
+			
+			<br /><br />
+			
+			<table bgcolor="antiquewhite" width="400px"height="200px"border="3"cellpadding="1"cellspacing="7">
+				<tr>
+					<td align="middle" width="200px">
+						<!--列表选择框-->
+						<font face="楷体"size="5"color="blueviolet">选择留言对象</font><br /><br />
+						<select name="actor" size="1">
+							<option>--请选择人物--</option>
+							<option value="巴卫" selected>巴卫</option>
+							<option value="奈奈生">奈奈生</option>
+							<option value="瑞希">瑞希</option>
+							<option value="御影">御影</option>
+							<option value="鞍马">鞍马</option>
+							<option value="恶罗王">恶罗王</option>
+							<option value="龙王">龙王</option>
+							<option value="虎彻&鬼切">虎彻&鬼切</option>
+						</select>
+					</td>
+					<td align="middle" width="200px">
+						<font face="楷体"size="5"color="blueviolet">选择范围</font><br /><br />
+						<select name="victor" size="1">
+							<option value="性格">性格</option>
+							<option value="外貌">外貌</option>
+							<option value="身高">身高</option>
+							<option value="服装">服装</option>
+							<option value="厨艺">厨艺</option>
+						</select>
+					</td>
+				</tr>
+			</table><br />
+			<table bgcolor="darkseagreen" width="330px"height="200px"border="3"cellpadding="1"cellspacing="7" >
+					
+				<td align="center"valign="top"><!--多行文本框-->
+					<font face="楷体"size="5"color="black">留言内容</font><br />
+					<textarea rows="12"cols="35"wrap="virtual"name="liu"></textarea>
+					
+				</td>
+			</table>
+			<br /><br />
+			<!--隐藏域:不要用于保存敏感数据，会在网页源代码中显示出来-->
+			<input type="hidden"name="hiddendata" value="uwe89992"/>
+			
+			<br />
+			
+			<font face="楷体"size="5"color="black">你最喜欢的巴卫image:</font><br /><br />
+				<input type="radio"name="tomoe"value="1" />1.<img src="../img/巴卫.jpg" height="200"/>
+				<input type="radio"name="tomoe"value="2" checked/>2.<img src="../img/酷巴卫.jpeg"height="200" />
+				<input type="radio"name="tomoe"value="3" />3.<img src="../img/bawei.jpeg"height="200" />
+				
+			<br /><br />
+			
+			<font face="楷体"size="5"color="black">你喜欢的合照:</font><br /><br />
+				<input type="checkbox"name="toenami"value="1" checked="checked"/>1.<img src="../img/003.jpg" height="200"/>
+				<input type="checkbox"name="toenami"value="2" />2.<img src="../img/005.jpg" height="200"/>
+				<input type="checkbox"name="toenami"value="3" />3.<img src="../img/006.jpg" height="200"/>
+				<input type="checkbox"name="toenami"value="4" />4.<img src="../img/007.jpg" height="200"/>
+			
+			<br /><br />
+			
+			<font face="楷体"size="5"color="black">如有补充，请上传自己jio的好看的图片:</font><input type="file" accept="image/jpeg" name="likeimage"/>
+			
+			<br /><br />
+			
+			<font face="楷体"size="5"color="black">你此次互动满意程度:</font><br /><br />
+			<input type="radio"name="tom"value="confused" /><img src="../img/smiles/confused.gif "/>
+			<input type="radio"name="tom"value="cool" ><img src="../img/smiles/cool.gif" />
+			<input type="radio"name="tom"value="cry" /><img src="../img/smiles/cry.gif" />
+			<input type="radio"name="tom"value="laugh" /><img src="../img/smiles/laugh.gif" />
+			<input type="radio"name="tom"value="lol" /><img src="../img/smiles/lol.gif" />
+			<input type="radio"name="tom"value="normal" /><img src="../img/smiles/normal.gif" />
+			<input type="radio"name="tom"value="redface" /><img src="../img/smiles/redface.gif" />
+			<input type="radio"name="tom"value="rolleyes" /><img src="../img/smiles/rolleyes.gif" />
+			<input type="radio"name="tom"value="sad" /><img src="../img/smiles/sad.gif" />
+			<input type="radio"name="tom"value="shocked" /><img src="../img/smiles/shocked.gif" />
+			<input type="radio"name="tom"value="sick" /><img src="../img/smiles/sick.gif" />
+			<input type="radio"name="tom"value="sleeping" /><img src="../img/smiles/sleeping.gif" />
+			<input type="radio"name="tom"value="smile" /><img src="../img/smiles/smile.gif" />
+			<input type="radio"name="tom"value="surprised" /><img src="../img/smiles/surprised.gif" />
+			<input type="radio"name="tom"value="unsure" /><img src="../img/smiles/unsure.gif" />
+			<input type="radio"name="tom"value="whistling" /><img src="../img/smiles/whistling.gif" />
+			<input type="radio"name="tom"value="wink" /><img src="../img/smiles/wink.gif" />
+			
+			<table bgcolor="beige"width="200px"height="80px"border="3"cellpadding="1"cellspacing="7"align="center">
+				<tr>
+					<td align="center">
+							<input type="submit"value="提交" name="提交" />
+							<input type="reset"value="重置"name="重置" />
+					</td>	
+				</tr>
+			</table>
+		
+		</form>
+	</body>
+</html>
